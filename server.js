@@ -73,21 +73,28 @@ function getClassificationIMC(weight, height) {
 } 
 
 const requestListener = function (req, res) {
-  if (req.method === 'POST') {
-    collectRequestData(req, result => {  
-      res.end(`${getClassificationIMC(result.weight, result.height)}`);
-    });
+  if(req.url === "/") {
+    if (req.method === 'POST') {
+      collectRequestData(req, result => {  
+        res.end(`${getClassificationIMC(result.weight, result.height)}`);
+      });
+    } else {
+      try {
+        if (fs.existsSync(path)) {
+          res.setHeader("Content-Type", "text/html");
+          res.writeHead(200);
+          const file = fs.readFileSync(path);
+          res.end(file);
+        } else {
+          res.end("File Not Found");
+        }
+      } catch(err) {
+        console.error(err)
+      } 
+    }
   } else {
-    try {
-      if (fs.existsSync(path)) {
-        res.setHeader("Content-Type", "text/html");
-        res.writeHead(200);
-        const file = fs.readFileSync(path);
-        res.end(file);
-      }
-    } catch(err) {
-      console.error(err)
-    } 
+    res.writeHead(404);
+    res.end("Not Found");
   }
 };
 
